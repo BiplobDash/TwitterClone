@@ -8,5 +8,10 @@
         }
 
         public Guid RequestByUserId { get; set; }
+
+        public override string GetMessage()
+        {
+            return $"User with ID {RequestByUserId} sent you a friend request.";
+        }
     }
 }
