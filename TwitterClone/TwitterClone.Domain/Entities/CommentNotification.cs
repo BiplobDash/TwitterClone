@@ -8,5 +8,10 @@
         }
 
         public Guid CommentByUserId { get; set; }
+
+        public override string GetMessage()
+        {
+            return $"User with ID {CommentByUserId} comment your post.";
+        }
     }
 }

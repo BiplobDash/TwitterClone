@@ -6,11 +6,16 @@ namespace TwitterClone.Domain.Entities
 {
     public class LikeNotification : Notification
     {
-        public LikeNotification(Guid likeUserById) : base("Like")
+        public LikeNotification(Guid likeByUserId) : base("Like")
         {
-            LikeUserById = likeUserById;
+            LikeByUserId = likeByUserId;
         }
 
-        public Guid LikeUserById { get; set; }
+        public Guid LikeByUserId { get; set; }
+
+        public override string GetMessage()
+        {
+            return $"User with ID {LikeByUserId} liked your post.";
+        }
     }
 }

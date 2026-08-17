@@ -1,9 +1,12 @@
 ﻿namespace TwitterClone.Domain.Entities
 {
-    public class SystemNotification : Notification
+    public sealed class SystemNotification : Notification
     {
         public SystemNotification() : base("System"){ }
 
-
+        public override string GetMessage()
+        {
+            return $"System Notification: Unknown Error";
+        }
     }
 }
