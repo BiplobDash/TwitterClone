@@ -11,6 +11,14 @@
 
         public User(): base(Guid.NewGuid()) {}
 
+        public User(Guid id, string email, string firstName, string lastName, DateTime createdAt, Guid createdBy)
+        : base(id)
+        {
+            Email = email;
+            FirstName = firstName;
+            LastName = lastName;
+        }
+
         public string FirstName     
         {
             get { return _firstName; }
