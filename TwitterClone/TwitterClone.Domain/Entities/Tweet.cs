@@ -5,7 +5,7 @@
         private Guid _userId;
         private string _content;
 
-        public Tweet(): base(Guid.NewGuid()) {}
+        public Tweet(string v) : base(Guid.NewGuid()) {}
 
         public Guid UserId
         {
