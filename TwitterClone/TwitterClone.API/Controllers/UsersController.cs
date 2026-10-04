@@ -30,7 +30,13 @@ namespace TwitterClone.API.Controllers
             
             var users = _userRepository.GetUsers();
 
-            return Ok(users);
+            return Ok(users.Select(users => new UserDto
+            {
+                Id = users.Id,
+                FirstName = users.FirstName,
+                LastName = users.LastName,
+                Email = users.Email,
+            }));
 
         }
 
@@ -57,7 +63,13 @@ namespace TwitterClone.API.Controllers
                 Email = createUserDto.Email,
             });
 
-            return Ok(createdUser);
+            return Ok(new UserDto
+            {
+                Id = createdUser.Id,
+                FirstName = createdUser.FirstName,
+                LastName = createdUser.LastName,
+                Email = createdUser.Email,
+            });
         }
 
 
@@ -68,7 +80,13 @@ namespace TwitterClone.API.Controllers
             if (user == null) { 
                 return NotFound();
             }
-            return Ok(user);
+            return Ok(new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+            });
         }
 
 
@@ -88,7 +106,13 @@ namespace TwitterClone.API.Controllers
 
             _userRepository.UpdateUser(user);
 
-            return Ok(user);
+            return Ok(new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+            });
         }
 
 
