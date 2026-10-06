@@ -1,4 +1,5 @@
-﻿using TwitterClone.Domain.Entities;
+﻿using TwitterClone.API.Dtos;
+using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Data
 {
@@ -21,22 +22,24 @@ namespace TwitterClone.API.Data
             return _tweets.SingleOrDefault(u => u.Id == id);
         }
 
-        public void AddTweet(Tweet tweet)
+        public Tweet AddTweet(Tweet tweet)
         {
             _tweets.Add(tweet);
-            //return tweet;
+            return tweet;
         }
 
-        public void UpdateTweet(Tweet tweet) // fully
+        public Tweet UpdateTweet(Tweet tweet) // fully
         {
             _tweets.RemoveAll(u => u.Id == tweet.Id);
             _tweets.Add(tweet);
-            //return tweet;
+            return tweet;
         }
 
         public bool DeleteTweet(Tweet tweet)
         {
             return _tweets.Remove(tweet);
         }
+
+        
     }
 }
