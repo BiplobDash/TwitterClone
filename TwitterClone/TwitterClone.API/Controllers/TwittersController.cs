@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TwitterClone.API.Data;
 using TwitterClone.API.Dtos;
+using TwitterClone.Application.Interfaces;
+using TwitterClone.Application.Services;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers
@@ -10,19 +12,19 @@ namespace TwitterClone.API.Controllers
     public class TwitterController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly TweetRepository _tweetRepository;
+        private readonly ITweetService _tweetService;
 
         public TwitterController(IConfiguration configuration, 
-            TweetRepository tweetRepository) {
+            ITweetService tweetService) {
             _configuration = configuration;
-            _tweetRepository = tweetRepository;
+            _tweetService = tweetService;
         }
 
         // GET: /api/Tweets
         [HttpGet]
         public IActionResult GetTweets()
         {
-            var tweets = _tweetRepository.GetTweets();
+            var tweets = _tweetService.GetTweets();
 
             var tweetsDto = tweets.Select(t => new TweetDto
             {
@@ -38,7 +40,7 @@ namespace TwitterClone.API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetTweetById([FromRoute] Guid id)
         {
-            var tweet = _tweetRepository.GetTweetById(id);
+            var tweet = _tweetService.GetTweetById(id);
 
             if (tweet == null)
             {
@@ -59,17 +61,12 @@ namespace TwitterClone.API.Controllers
         [HttpPost]
         public IActionResult CreateTweet([FromBody] CreateTweetDto tweet)
         {
-            if (string.IsNullOrWhiteSpace(tweet.Content))
+            var newTweet = _tweetService.AddTweet(tweet);
+
+            if (newTweet == null)
             {
                 return BadRequest("Tweet can't be empty!");
             }
-
-            var newTweet = new Tweet(
-               
-                tweet.Content
-             );
-
-            _tweetRepository.AddTweet(newTweet);
 
             var tweetDto = new TweetDto
             {
@@ -79,35 +76,26 @@ namespace TwitterClone.API.Controllers
             };
 
             return Ok(tweetDto);
+
         }
 
         // PUT: /api/Tweets/{id}
         [HttpPut("{id}")]
-        public IActionResult UpdateTweet(
-            [FromRoute] Guid id,
-            [FromBody] UpdateTweetDto content)
+        public IActionResult UpdateTweet( [FromRoute] Guid id, [FromBody] UpdateTweetDto dto)
+
         {
-            if (string.IsNullOrWhiteSpace(content.Content))
+            var updatedTweet = _tweetService.UpdateTweet(id, dto);
+
+            if (updatedTweet == null)
             {
-                return BadRequest("Tweet can't be empty!");
+                return BadRequest("Tweet not found or content is invalid.");
             }
-
-            var tweet = _tweetRepository.GetTweetById(id);
-
-            if (tweet == null)
-            {
-                return NotFound();
-            }
-
-            tweet.Content = content.Content;
-
-            _tweetRepository.UpdateTweet(tweet);
 
             var tweetDto = new TweetDto
             {
-                Id = tweet.Id,
-                UserId = tweet.UserId,
-                Content = tweet.Content
+                Id = updatedTweet.Id,
+                UserId = updatedTweet.UserId,
+                Content = updatedTweet.Content
             };
 
             return Ok(tweetDto);
@@ -117,14 +105,12 @@ namespace TwitterClone.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteTweet([FromRoute] Guid id)
         {
-            var tweet = _tweetRepository.GetTweetById(id);
+            var deleted = _tweetService.DeleteTweet(id);
 
-            if (tweet == null)
+            if (!deleted)
             {
                 return NotFound();
             }
-
-            _tweetRepository.DeleteTweet(tweet);
 
             return Ok(new
             {

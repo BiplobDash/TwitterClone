@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+    <ProjectReference Include="..\TwitterClone.Application\TwitterClone.Application.csproj" />
+    <ProjectReference Include="..\TwitterClone.Domain\TwitterClone.Domain.csproj" />
   </ItemGroup>
 
 </Project>

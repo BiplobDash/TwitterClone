@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TwitterClone.API.Data;
 using TwitterClone.API.Dtos;
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers
@@ -15,10 +16,10 @@ namespace TwitterClone.API.Controllers
     public class UsersController : ControllerBase
     {
 
-        private readonly UserRepository _userRepository;
-        public UsersController(UserRepository userRepository)
+        private readonly IUserService _userService;
+        public UsersController(IUserService userService)
         {
-            _userRepository = userRepository;
+            _userService = userService;
         }
 
 
@@ -27,16 +28,8 @@ namespace TwitterClone.API.Controllers
         [AllowAnonymous]
         public IActionResult GetUsers()
         {
-            
-            var users = _userRepository.GetUsers();
 
-            return Ok(users.Select(users => new UserDto
-            {
-                Id = users.Id,
-                FirstName = users.FirstName,
-                LastName = users.LastName,
-                Email = users.Email,
-            }));
+            return Ok(_userService.GetUsers());
 
         }
 
@@ -45,48 +38,27 @@ namespace TwitterClone.API.Controllers
         [AllowAnonymous]
         public IActionResult CreateUser([FromBody] CreateUserDto createUserDto)
         {
-            if (string.IsNullOrWhiteSpace(createUserDto.FirstName) ||
-                string.IsNullOrWhiteSpace(createUserDto.LastName) ||
-                string.IsNullOrWhiteSpace(createUserDto.Email)) {
-                return BadRequest("All fields are required.");
+
+            var createdUser = _userService.CreateUser(createUserDto);
+
+            if (createdUser == null) {
+                return BadRequest("A error happen during create user.");
             }
 
-            var existingUser = _userRepository.GetUserByEmail(createUserDto.Email);
-            if (existingUser == null) { 
-                return BadRequest("A user with this email already exists");
-            }
-
-            var createdUser = _userRepository.AddUser(new User()
-            {
-                FirstName = createUserDto.FirstName,
-                LastName = createUserDto.LastName,
-                Email = createUserDto.Email,
-            });
-
-            return Ok(new UserDto
-            {
-                Id = createdUser.Id,
-                FirstName = createdUser.FirstName,
-                LastName = createdUser.LastName,
-                Email = createdUser.Email,
-            });
+            return Ok(createdUser);
         }
 
 
         // /api/users/{id}
         [HttpGet("{userId}")]
         public IActionResult GetUserById([FromRoute] Guid userId){
-            var user = _userRepository.GetUserById(userId);
+
+            var user = _userService.GetUserById(userId);
             if (user == null) { 
                 return NotFound();
             }
-            return Ok(new UserDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-            });
+
+            return Ok(user);
         }
 
 
@@ -95,24 +67,13 @@ namespace TwitterClone.API.Controllers
         public IActionResult UpdateUser([FromRoute] Guid userId, 
             [FromBody] UpdateUserDto updateUserDto)
         {
-            var user = _userRepository.GetUserById(userId);
+            var user = _userService.UpdateUser(userId, updateUserDto);
             if (user == null)
             {
                 return NotFound();
             }
 
-            user.FirstName = updateUserDto.FirstName;
-            user.LastName = updateUserDto.LastName;
-
-            _userRepository.UpdateUser(user);
-
-            return Ok(new UserDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-            });
+            return Ok(user);
         }
 
 
@@ -133,13 +94,11 @@ namespace TwitterClone.API.Controllers
         [HttpDelete("{userId}")]
         public IActionResult DeleteUser([FromRoute] Guid userId) {
 
-            var user = _userRepository.GetUserById(userId);
-            if (user == null)
+            var isDeleted = _userService.DeleteUser(userId);
+            if (isDeleted == false)
             {
                 return NotFound();
             }
-
-            var isDeleted = _userRepository.DeleteUser(user);
 
             return Ok(isDeleted);
         }
