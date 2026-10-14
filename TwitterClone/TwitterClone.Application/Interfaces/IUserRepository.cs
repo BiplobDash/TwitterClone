@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TwitterClone.API.Dtos;
-using TwitterClone.Domain.Entities;
+﻿using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.Application.Interfaces
 {

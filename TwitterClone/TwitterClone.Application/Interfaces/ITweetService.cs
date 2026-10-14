@@ -1,23 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TwitterClone.API.Dtos;
-using TwitterClone.Domain.Entities;
+﻿using TwitterClone.Application.Dtos;
 
 namespace TwitterClone.Application.Interfaces
 {
     public interface ITweetService
     {
-        List<Tweet> GetTweets();
-
-        List<Tweet> GetTweetsByUserId(Guid userId);
-
-        Tweet? GetTweetById(Guid id);
-
-        Tweet? AddTweet(CreateTweetDto tweet);
-
-        Tweet? UpdateTweet(Guid id, UpdateTweetDto dto);
-
+        TweetDto? CreateTweet(CreateTweetDto createTweetDto);
+        TweetDto? GetTweetById(Guid id);
+        List<TweetDto> GetTweets(Guid? userId);
+        TweetDto? UpdateTweet(Guid id, UpdateTweetDto updateTweetDto);
         bool DeleteTweet(Guid id);
     }
 }

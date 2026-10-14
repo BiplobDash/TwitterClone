@@ -1,73 +1,65 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using TwitterClone.API.Data;
-using TwitterClone.API.Dtos;
+using TwitterClone.Application.Dtos;
 using TwitterClone.Application.Interfaces;
-using TwitterClone.Domain.Entities;
 
-namespace TwitterClone.API.Controllers
+namespace TwitterClone.Api.Controllers
 {
+
+    // api/users
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class UsersController : ControllerBase
     {
 
         private readonly IUserService _userService;
-        public UsersController(IUserService userService)
+
+        public UsersController(
+            IUserService userService)
         {
             _userService = userService;
         }
 
 
-        // /api/users
+        // GET /api/users
         [HttpGet]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(List<UserDto>), StatusCodes.Status200OK)]
         public IActionResult GetUsers()
         {
-
             return Ok(_userService.GetUsers());
-
         }
 
-        // /api/users
+        // POST /api/users
         [HttpPost]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public IActionResult CreateUser([FromBody] CreateUserDto createUserDto)
         {
-
             var createdUser = _userService.CreateUser(createUserDto);
 
-            if (createdUser == null) {
-                return BadRequest("A error happen during create user.");
+            if (createdUser is null)
+            {
+                // Input is already validated by [ApiController], so the only failure left is a taken email.
+                return Conflict($"A user with email '{createUserDto.Email}' already exists.");
             }
 
-            return Ok(createdUser);
+            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
 
 
-        // /api/users/{id}
-        [HttpGet("{userId}")]
-        public IActionResult GetUserById([FromRoute] Guid userId){
-
-            var user = _userService.GetUserById(userId);
-            if (user == null) { 
-                return NotFound();
-            }
-
-            return Ok(user);
-        }
-
-
-        //PUT /api/users/{id}
-        [HttpPut("{userId}")]
-        public IActionResult UpdateUser([FromRoute] Guid userId, 
-            [FromBody] UpdateUserDto updateUserDto)
+        // GET /api/users/{id}
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetUserById([FromRoute] Guid id)
         {
-            var user = _userService.UpdateUser(userId, updateUserDto);
+            var user = _userService.GetUserById(id);
+
             if (user == null)
             {
                 return NotFound();
@@ -77,30 +69,55 @@ namespace TwitterClone.API.Controllers
         }
 
 
-        // I want to update only user phone number
-        // PATCH /api/users/{id}/phoneNumber
-        [HttpPatch("{userId}/phoneNumber")]
-        public IActionResult UpdatePhone([FromRoute] Guid userId, [FromBody] string phoneNumber)
+        // PUT /api/users/{id}
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult UpdateUser([FromRoute] Guid id, [FromBody] UpdateUserDto updateUserDto)
         {
-            return Ok(new
+            var user = _userService.UpdateUser(id, updateUserDto);
+
+            if (user == null)
             {
-                UserId = userId,
-                PhoneNumber = phoneNumber,
-            });
+                return NotFound();
+            }
+
+            return Ok(user);
         }
 
 
-        // /api/users/{id}
-        [HttpDelete("{userId}")]
-        public IActionResult DeleteUser([FromRoute] Guid userId) {
+        // PATCH /api/users/{id}/phoneNumber
+        [HttpPatch("{id}/phoneNumber")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult UpdateUserPhoneNumber([FromRoute] Guid id, [FromBody, Required, Phone] string phoneNumber)
+        {
+            var user = _userService.UpdateUserPhoneNumber(id, phoneNumber);
 
-            var isDeleted = _userService.DeleteUser(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
+        // DELETE /api/users/{id}
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult DeleteUser([FromRoute] Guid id)
+        {
+            var isDeleted = _userService.DeleteUser(id);
+
             if (isDeleted == false)
             {
                 return NotFound();
             }
 
-            return Ok(isDeleted);
+            return NoContent();
         }
     }
 }

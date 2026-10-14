@@ -1,7 +1,15 @@
-﻿namespace TwitterClone.API.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TwitterClone.Application.Dtos
 {
-    public class UpdateTweetDto
+    public class UpdateTweetDto : IValidatableObject
     {
-        public string Content { get; set; } = string.Empty;
+        [Required]
+        public required string Content { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            return TweetContentValidator.Validate(Content, nameof(Content));
+        }
     }
 }
