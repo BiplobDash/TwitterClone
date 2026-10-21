@@ -1,56 +1,79 @@
-﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwitterClone.Application.Dtos;
+using TwitterClone.Application.Interfaces;
 
-namespace TwitterClone.API.Controllers
+namespace TwitterClone.Api.Controllers
 {
+
+    // api/bookmarks
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class BookmarksController : ControllerBase
     {
-        BookmarksController() { }
 
-        // /api/bookmarks
+        private readonly IBookmarkService _bookmarkService;
+
+        public BookmarksController(
+            IBookmarkService bookmarkService)
+        {
+            _bookmarkService = bookmarkService;
+        }
+
+
+        // GET /api/bookmarks?userId={userId}
         [HttpGet]
-        public IActionResult GetAllBookmarks()
+        [ProducesResponseType(typeof(List<BookmarkDto>), StatusCodes.Status200OK)]
+        public IActionResult GetBookmarks([FromQuery] Guid? userId)
         {
-            return Ok(new
-            {
-                BookmarkId = Guid.NewGuid(),
-            });
+            return Ok(_bookmarkService.GetBookmarks(userId));
         }
 
-        // /api/{id}
-        [HttpPost("{id}")]
-        public IActionResult CreateBookmark([FromRoute] Guid id)
+        // GET /api/bookmarks/{id}
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BookmarkDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetBookmarkById([FromRoute] Guid id)
         {
-            return Ok(new
+            var bookmark = _bookmarkService.GetBookmarkById(id);
+
+            if (bookmark == null)
             {
-                BookmarkId = id,
-                Message = "Create Successfully",
-            });
+                return NotFound();
+            }
+
+            return Ok(bookmark);
         }
 
-
-        // /api/users/{userId}
-        [HttpGet("users/{userId}")]
-        public IActionResult GetBookmarksByUserId([FromRoute] Guid userId)
+        // POST /api/bookmarks
+        [HttpPost]
+        [ProducesResponseType(typeof(BookmarkDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult CreateBookmark([FromBody] CreateBookmarkDto createBookmarkDto)
         {
-            return Ok(new
+            var createdBookmark = _bookmarkService.CreateBookmark(createBookmarkDto);
+
+            if (createdBookmark == null)
             {
-                UserId = userId,
-            });
+                return BadRequest("The user or the tweet does not exist.");
+            }
+
+            return CreatedAtAction(nameof(GetBookmarkById), new { id = createdBookmark.Id }, createdBookmark);
         }
 
-
-        // /api/{id}
+        // DELETE /api/bookmarks/{id}
         [HttpDelete("{id}")]
-        public IActionResult DeleteBookmark([FromRoute] Guid id) { 
-            return Ok(new
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult DeleteBookmark([FromRoute] Guid id)
+        {
+            var isDeleted = _bookmarkService.DeleteBookmark(id);
+
+            if (isDeleted == false)
             {
-                BookmarkId = id,
-                Message = "Deleted Successfully",
-            });
+                return NotFound();
+            }
+
+            return NoContent();
         }
     }
 }

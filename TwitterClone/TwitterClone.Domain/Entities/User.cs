@@ -1,25 +1,20 @@
 ﻿namespace TwitterClone.Domain.Entities
 {
-    public class User : BaseEntity, IFollowable, INotifyable
+    public class User : BaseEntity, IFollowable, INotifiable
     {
+
+        public User() : base(Guid.NewGuid())
+        {
+
+        }
+
         private string _firstName;
         private string _lastName;
         private string _email;
+        private string? _phoneNumber;
 
-        private List<Guid> _followers = new List<Guid>();
-        private List<Guid> _inComingNotifications = new List<Guid>();
 
-        public User(): base(Guid.NewGuid()) {}
-
-        public User(Guid id, string email, string firstName, string lastName, DateTime createdAt, Guid createdBy)
-        : base(id)
-        {
-            Email = email;
-            FirstName = firstName;
-            LastName = lastName;
-        }
-
-        public string FirstName     
+        public string FirstName
         {
             get { return _firstName; }
             set { _firstName = value; }
@@ -37,31 +32,43 @@
             set { _email = value; }
         }
 
+        public string? PhoneNumber
+        {
+            get { return _phoneNumber; }
+            set { _phoneNumber = value; }
+        }
+
+        private List<Guid> _followers = new List<Guid>();
+        private List<Guid> _inComingNotifications = new List<Guid>();
+
+        public override string DescribeRecord()
+        {
+            var baseRecord = base.DescribeRecord();
+            return $"{baseRecord}, FirstName: {FirstName}, LastName: {LastName}, Email: {Email}, PhoneNumber: {PhoneNumber}";
+        }
+
         public void Follow(Guid userId)
         {
-            if (!_followers.Contains(userId))
+            if(!_followers.Contains(userId))
             {
                 _followers.Add(userId);
             }
-
         }
 
         public void Unfollow(Guid userId)
         {
-            if (_followers.Contains(userId))
+            if(_followers.Contains(userId))
             {
                 _followers.Remove(userId);
             }
         }
 
-
         public void AddNotification(Guid notificationId)
         {
-            if (!_inComingNotifications.Contains(notificationId))
+            if(!_inComingNotifications.Contains(notificationId))
             {
                 _inComingNotifications.Add(notificationId);
             }
         }
-
     }
 }

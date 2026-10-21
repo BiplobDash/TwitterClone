@@ -1,20 +1,20 @@
-
-using TwitterClone.API.Data;
-using TwitterClone.Application.Interfaces;
-using TwitterClone.Application.Services;
+using TwitterClone.Application;
+using TwitterClone.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Repositories Registration
-builder.Services.AddSingleton<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
+// Clean architecture layers: each layer registers its own services.
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
+
+
 
 var app = builder.Build();
 
@@ -23,7 +23,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();

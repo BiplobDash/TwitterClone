@@ -1,23 +1,29 @@
 ﻿using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
-namespace TwitterClone.API.Data
+namespace TwitterClone.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private List<User> _users { get; set; } = new List<User>();
-        public User AddUser(User user) { 
+
+        private readonly List<User> _users = new List<User>();
+
+        public User AddUser(User user)
+        {
             _users.Add(user);
+
             return user;
         }
 
-        public User UpdateUser(User user) { 
+        public User UpdateUser(User user)
+        {
             _users.RemoveAll(u => u.Id == user.Id);
             _users.Add(user);
             return user;
         }
 
-        public bool DeleteUser(User user) { 
+        public bool DeleteUser(User user)
+        {
             return _users.Remove(user);
         }
 
@@ -28,12 +34,13 @@ namespace TwitterClone.API.Data
 
         public List<User> GetUsers()
         {
-            return _users;
+            return _users.ToList();
         }
 
         public User? GetUserByEmail(string email)
         {
-            return _users.SingleOrDefault(u =>u.Email == email);
+            return _users.SingleOrDefault(u =>
+                string.Equals(u.Email, email.Trim(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }
