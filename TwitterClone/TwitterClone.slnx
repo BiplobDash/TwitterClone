@@ -4,4 +4,5 @@
   <Project Path="TwitterClone.Application/TwitterClone.Application.csproj" Id="152a24ef-7d33-45ed-9314-3f5f4cc744fa" />
   <Project Path="TwitterClone.Domain/TwitterClone.Domain.csproj" />
   <Project Path="TwitterClone.Infrastructure/TwitterClone.Infrastructure.csproj" Id="fb3d2d97-a1c1-49f3-953a-5d6c6a3b2468" />
+  <Project Path="TwitterClone.Utilities/TwitterClone.Utilities.csproj" Id="3b3a75be-1e9e-4fb0-83b2-84b4eda1a2aa" />
 </Solution>
