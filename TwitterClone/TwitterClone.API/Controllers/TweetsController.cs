@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using TwitterClone.Application.Dtos;
+using TwitterClone.Application.Generics;
 using TwitterClone.Application.Interfaces;
+using TwitterClone.Domain.Entities;
+using TwitterClone.Utilities.Extensions;
 
 namespace TwitterClone.Api.Controllers
 {
@@ -38,10 +41,11 @@ namespace TwitterClone.Api.Controllers
 
             if (tweet == null)
             {
-                return NotFound();
+                return NotFound(new ApiResponse<TweetDto>(false, "Tweet not found", null));
             }
 
-            return Ok(tweet);
+            var response = new ApiResponse<TweetDto>(true, "Tweet retrieved successfully", tweet);
+            return Ok(response);
         }
 
         // POST /api/tweets
@@ -93,5 +97,53 @@ namespace TwitterClone.Api.Controllers
 
             return NoContent();
         }
+
+
+        [HttpGet("extension-test")]
+        public IActionResult TestExtensions()
+        {
+            string word = "dotnet";
+            string hashtag = word.AddToHashTags();
+
+            var tweet = new Tweet("Learning ASP.NET Core");
+
+            for (int i = 0; i < 100; i++)
+            {
+                tweet.AddLike();
+            }
+
+            bool isPopular = tweet.IsPopular();
+
+            return Ok(new
+            {
+                Hashtag = hashtag,
+                Likes = tweet.Likes,
+                IsPopular = isPopular
+            });
+        }
+
+        [HttpGet("extension-test-list")]
+        public IActionResult TestListExtensions()
+        {
+            List<Tweet> tweets = new List<Tweet>{
+                new Tweet("First tweet content"),
+                new Tweet("Second tweet content")
+            };
+
+            Tweet? lastTweet = tweets.LastOrNull();
+
+
+           
+            List<string> tags = new List<string> { "#csharp", "#dotnet", "#webapi" };
+
+            string? lastTag = tags.LastOrNull();
+
+            return Ok(new
+            {
+                LastTweetContent = lastTweet?.Content,
+                LastTag = lastTag
+            });
+        }
+
     }
 }

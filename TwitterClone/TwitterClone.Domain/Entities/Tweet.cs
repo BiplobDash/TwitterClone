@@ -11,6 +11,8 @@ namespace TwitterClone.Domain.Entities
         private Guid _userId;
         private string _content;
 
+        public int Likes { get; private set; }
+
         public static int MaxContentLength = 200;
         
 
@@ -61,6 +63,11 @@ namespace TwitterClone.Domain.Entities
                 return false;
             }
             return true;
+        }
+
+        public void AddLike()
+        {
+            Likes++;
         }
     }
 }
