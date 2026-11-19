@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using TwitterClone.Application.Dtos;
 using TwitterClone.Application.Interfaces;
@@ -8,10 +9,32 @@ namespace TwitterClone.Infrastructure.Auth
 {
     public class JwtTokenService : ITokenService
     {
-        public (string, DateOnly) GetToken(UserDto user)
+        private readonly JwtSettings _jwtSettings;
+        private JsonWebTokenHandler _jwtHandler = new JsonWebTokenHandler();
+        public JwtTokenService(JwtSettings jwtSettings) { 
+            _jwtSettings = jwtSettings;
+        }
+        public (string, DateTime) GetToken(UserDto user)
         {
-            // business logic to return token with expiry time.
-            return (string.Empty, DateOnly.MinValue);
+            var claims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            };
+
+            var signedKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var expiryTime = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryTimeInMinutes);
+
+            var descriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(claims),
+                Audience = _jwtSettings.Audience,
+                Issuer = _jwtSettings.Issuer,
+                Expires = expiryTime,
+                SigningCredentials = new SigningCredentials(signedKey, SecurityAlgorithms.HmacSha256),
+            };
+
+            return (_jwtHandler.CreateToken(descriptor), expiryTime);
         }
     }
 }
