@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TwitterClone.Application.Interfaces;
+using TwitterClone.Infrastructure.Auth;
 using TwitterClone.Infrastructure.Persistance;
 using TwitterClone.Infrastructure.Repositories;
 
@@ -20,7 +21,7 @@ namespace TwitterClone.Infrastructure
             // we need fix it
             services.AddDbContext<TwitterCloneDbContext>();
 
-            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<ITweetRepository, TweetRepository>();
             services.AddSingleton<IBookmarkRepository, BookmarkRepository>();
             services.AddSingleton<IFollowRepository, FollowRepository>();
@@ -28,6 +29,9 @@ namespace TwitterClone.Infrastructure
             services.AddSingleton<IMessageRepository, MessageRepository>();
             services.AddSingleton<INotificationRepository, NotificationRepository>();
             services.AddSingleton<IRetweetRepository, RetweetRepository>();
+            services.AddScoped<ITokenService, JwtTokenService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+
 
             return services;
         }
