@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TwitterClone.Application.Interfaces;
 using TwitterClone.Infrastructure.Auth;
@@ -19,7 +20,8 @@ namespace TwitterClone.Infrastructure
             }
 
             // we need fix it
-            services.AddDbContext<TwitterCloneDbContext>();
+            services.AddDbContext<TwitterCloneDbContext>(
+            options => options.UseNpgsql(connectionString));
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<ITweetRepository, TweetRepository>();

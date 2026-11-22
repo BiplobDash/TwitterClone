@@ -10,7 +10,7 @@ namespace TwitterClone.Api.Controllers
     // api/users
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
     public class AuthController : ControllerBase
     {
 
@@ -21,6 +21,7 @@ namespace TwitterClone.Api.Controllers
         }
 
         [HttpPost("/login")]
+        [AllowAnonymous]
         public IActionResult Login([FromBody] LoginDto loginDto)
         {
             var authResponse = _autheService.Login(loginDto);

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TwitterClone.Application.Dtos;
 using TwitterClone.Application.Generics;
@@ -11,6 +12,7 @@ namespace TwitterClone.Api.Controllers
     // api/tweets
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TweetsController : ControllerBase
     {
 
