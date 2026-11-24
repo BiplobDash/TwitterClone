@@ -3,13 +3,10 @@ using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.Infrastructure.Persistance
 {
-    public class TwitterCloneDbContext : DbContext
+    public class TwitterCloneDbContext(DbContextOptions<TwitterCloneDbContext> options) : DbContext(options)
     {
-        public TwitterCloneDbContext(DbContextOptions<TwitterCloneDbContext> options) : base(options) { 
-        
-        }
-
         public DbSet<User> Users { get; set; }
+        public DbSet<Tweet> Tweets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

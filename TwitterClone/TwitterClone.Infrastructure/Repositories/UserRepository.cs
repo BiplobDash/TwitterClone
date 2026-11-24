@@ -55,8 +55,12 @@ namespace TwitterClone.Infrastructure.Repositories
 
         public User? GetUserByEmail(string email)
         {
+            //return _context.Users.SingleOrDefault(u =>
+            //    string.Equals(u.Email, email.Trim(), StringComparison.OrdinalIgnoreCase));
+            var normalizedEmail = email.Trim().ToLower();
+
             return _context.Users.SingleOrDefault(u =>
-                string.Equals(u.Email, email.Trim(), StringComparison.OrdinalIgnoreCase));
+                u.Email != null && u.Email.ToLower() == normalizedEmail);
         }
     }
 }

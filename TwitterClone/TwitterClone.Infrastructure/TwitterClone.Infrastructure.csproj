@@ -17,4 +17,8 @@
     <ProjectReference Include="..\TwitterClone.Domain\TwitterClone.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistance\Migrations\" />
+  </ItemGroup>
+
 </Project>
