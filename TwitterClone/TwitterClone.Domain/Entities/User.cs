@@ -13,6 +13,7 @@
         private string _email;
         private string? _phoneNumber;
         private string? _passwordHash;
+        public List<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
 
         public string FirstName
